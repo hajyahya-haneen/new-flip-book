@@ -105,7 +105,7 @@
       maxShadowOpacity: 0.35
     });
 
-    pageFlip.loadFromImages(pages);
+    pageFlip.loadFromImages(pages, true);
 
     document.getElementById("next").onclick = () => pageFlip.flipNext();
     document.getElementById("prev").onclick = () => pageFlip.flipPrev();
@@ -113,3 +113,4 @@
 
 </body>
 </html>
+
