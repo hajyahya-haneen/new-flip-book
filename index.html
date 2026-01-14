@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -18,12 +18,11 @@
       gap:12px;
     }
 
-    /* مهم: نخلي منطقة الكتاب LTR حتى التقليب يصير من اليسار لليمين */
+    /* الكتاب نفسه LTR حتى يكون التقليب من اليسار لليمين */
     #book-wrap{
       width:min(1200px, 95vw);
-      aspect-ratio: 2 / 1;      /* صفحتين جنب بعض على الشاشات العريضة */
-      background:transparent;
-      direction:ltr;            /* هذا هو المفتاح لاتجاه التقليب */
+      aspect-ratio: 2 / 1;
+      direction:ltr;
     }
 
     #book{
@@ -31,17 +30,17 @@
       height:100%;
     }
 
-    .hint{
-      color:#333;
-      font-size:14px;
-      text-align:center;
-      direction:rtl;            /* النص العربي تحت */
+    /* تأكيد: لا عكس للصور */
+    img{
+      transform:none !important;
     }
+
     .btns{
       display:flex;
       gap:8px;
-      direction:rtl;            /* ترتيب أزرار عربي */
+      direction:rtl; /* فقط للأزرار */
     }
+
     button{
       padding:10px 14px;
       border:0;
@@ -49,10 +48,17 @@
       cursor:pointer;
       box-shadow:0 6px 18px rgba(0,0,0,.12);
     }
+
+    .hint{
+      font-size:14px;
+      color:#333;
+      direction:rtl;
+    }
   </style>
 </head>
 
 <body>
+
   <div id="book-wrap">
     <div id="book"></div>
   </div>
@@ -61,61 +67,49 @@
     <button id="prev">السابق</button>
     <button id="next">التالي</button>
   </div>
-  <div class="hint">يمكنك أيضًا التقليب بالسحب/النقر على أطراف الصفحة.</div>
 
-  <!-- مكتبة تقليب الصفحات -->
+  <div class="hint">
+    يمكنك التقليب بالسحب أو النقر على أطراف الصفحة
+  </div>
+
+  <!-- مكتبة التقليب -->
   <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const TOTAL_PAGES = 25;
+    const TOTAL_PAGES = 25;
 
-      // 1) نبني قائمة الصفحات بالترتيب الطبيعي
-      const rawPages = [];
-      for (let i = 1; i <= TOTAL_PAGES; i++){
-        const n = String(i).padStart(2,'0');
-        rawPages.push(`pages/page${n}.jpg`);
-      }
+    const pages = [];
+    for (let i = 1; i <= TOTAL_PAGES; i++){
+      const n = String(i).padStart(2,'0');
+      pages.push(`pages/page${n}.jpg`);
+    }
 
-      // 2) نبدّل أماكن الصفحات يمين/يسار "بدون عكس الصورة"
-      //    (نبدّل كل زوج: [2,3] => [3,2] ، [4,5] => [5,4] ... )
-      //    الغلاف (صفحة 1) نخليه كما هو.
-      const pages = [ rawPages[0] ]; // الغلاف
-      for (let i = 1; i < rawPages.length; i += 2){
-        const a = rawPages[i];
-        const b = rawPages[i + 1];
-        if (b) {
-          pages.push(b, a); // swap
-        } else {
-          pages.push(a);    // لو في صفحة أخيرة بدون زوج
-        }
-      }
+    const pageFlip = new St.PageFlip(document.getElementById("book"), {
+      width: 600,
+      height: 600,
+      size: "stretch",
 
-      const bookEl = document.getElementById('book');
+      minWidth: 315,
+      maxWidth: 1200,
+      minHeight: 315,
+      maxHeight: 1200,
 
-      const pageFlip = new St.PageFlip(bookEl, {
-        width: 600,
-        height: 600,
-        size: "stretch",
-        minWidth: 315,
-        maxWidth: 1200,
-        minHeight: 315,
-        maxHeight: 1200,
+      showCover: true,
 
-        showCover: true,
-        mobileScrollSupport: true,
-        useMouseEvents: true,
-        swipeDistance: 30,
-        flippingTime: 700,
-        disableFlipByClick: false,
-        maxShadowOpacity: 0.35
-      });
+      /* 🔑 المفتاح الأساسي */
+      rtl: false,          // ← تقليب من اليسار إلى اليمين
 
-      pageFlip.loadFromImages(pages);
-
-      document.getElementById('next').addEventListener('click', () => pageFlip.flipNext());
-      document.getElementById('prev').addEventListener('click', () => pageFlip.flipPrev());
+      flippingTime: 700,
+      useMouseEvents: true,
+      swipeDistance: 30,
+      maxShadowOpacity: 0.35
     });
+
+    pageFlip.loadFromImages(pages);
+
+    document.getElementById("next").onclick = () => pageFlip.flipNext();
+    document.getElementById("prev").onclick = () => pageFlip.flipPrev();
   </script>
+
 </body>
 </html>
