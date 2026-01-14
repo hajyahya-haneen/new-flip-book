@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Arabic Flipbook</title>
+  <title>Flipbook</title>
 
   <style>
     body{
@@ -16,14 +16,14 @@
       justify-content:center;
       min-height:100vh;
       gap:12px;
-      direction: rtl;
+      direction:ltr;
     }
 
-    /* Arabic book container */
+    /* Book container: LEFT → RIGHT */
     #book-wrap{
       width:min(1200px, 95vw);
       aspect-ratio: 2 / 1;
-      direction: rtl;
+      direction:ltr;
     }
 
     #book{
@@ -31,15 +31,15 @@
       height:100%;
     }
 
-    /* Ensure images are never mirrored */
+    /* Never mirror images */
     img{
-      transform: none !important;
+      transform:none !important;
     }
 
     .btns{
       display:flex;
       gap:8px;
-      direction: rtl;
+      direction:ltr;
     }
 
     button{
@@ -65,12 +65,12 @@
   </div>
 
   <div class="btns">
-    <button id="prev">السابق</button>
-    <button id="next">التالي</button>
+    <button id="prev">Previous</button>
+    <button id="next">Next</button>
   </div>
 
   <div class="hint">
-    كتاب عربي – التقليب من اليمين إلى اليسار
+    Left page → flips to the right (standard book)
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
@@ -78,14 +78,14 @@
   <script>
     const TOTAL_PAGES = 25;
 
-    /* Pages in natural order (no swapping, no tricks) */
+    /* Pages in natural order */
     const pages = [];
     for (let i = 1; i <= TOTAL_PAGES; i++){
       const n = String(i).padStart(2,'0');
       pages.push(`pages/page${n}.jpg`);
     }
 
-    /* PageFlip configured for Arabic (RTL) */
+    /* PageFlip: LEFT → RIGHT */
     const pageFlip = new St.PageFlip(
       document.getElementById("book"),
       {
@@ -104,7 +104,7 @@
         useMouseEvents: true,
         maxShadowOpacity: 0.35,
 
-        rtl: true
+        rtl: false   // ← CRITICAL: LEFT → RIGHT book
       }
     );
 
