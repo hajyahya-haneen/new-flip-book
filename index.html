@@ -1,342 +1,40 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>كتاب قصصي (تقليب صفحات)</title>
-
-  <!-- مكتبة تقليب صفحات واقعية (PageFlip) -->
-  <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.min.js"></script>
-
-  <style>
-    :root{
-      --bg:#f3f3f3;
-      --ink:#111;
-      --muted:#666;
-      --card:#ffffff;
-      --shadow: 0 18px 50px rgba(0,0,0,.18);
-      --radius: 18px;
-    }
-
-    *{ box-sizing:border-box; }
-
-    body{
-      margin:0;
-      background: radial-gradient(1200px 700px at 50% 30%, #ffffff 0%, var(--bg) 55%, #eaeaea 100%);
-      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
-      color:var(--ink);
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:14px;
-      padding:18px;
-    }
-
-    header{
-      width:min(1100px, 96vw);
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:12px;
-    }
-
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .title h1{
-      font-size:18px;
-      margin:0;
-      font-weight:700;
-      letter-spacing:.2px;
-    }
-    .title p{
-      margin:0;
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.35;
-    }
-
-    .controls{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      direction:ltr; /* الأزرار تكون من اليسار لليمين بصرياً */
-    }
-
-    button{
-      border:0;
-      background: var(--card);
-      color:var(--ink);
-      padding:10px 14px;
-      border-radius:999px;
-      cursor:pointer;
-      box-shadow: 0 10px 22px rgba(0,0,0,.10);
-      font-size:14px;
-      display:flex;
-      gap:8px;
-      align-items:center;
-      user-select:none;
-    }
-    button:active{ transform: translateY(1px); }
-    button[disabled]{ opacity:.45; cursor:not-allowed; }
-
-    .kbd{
-      font-size:12px;
-      color:var(--muted);
-      padding:6px 10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.65);
-      border: 1px solid rgba(0,0,0,.06);
-      white-space:nowrap;
-    }
-
-    /* الحاوية */
-    #stage{
-      width:min(1100px, 96vw);
-      aspect-ratio: 2 / 1;  /* كتاب مفتوح */
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      position:relative;
-    }
-
-    /* عنصر الكتاب */
-    #book{
-      width:100%;
-      height:́ 100%;
-      filter: drop-shadow(var(--shadow));
-      border-radius: var(--radius);
-    }
-
-    /* صفحات HTML التي سنولّدها */
-    .page{
-      width:100%;
-      height:100%;
-      background:#fff;
-      border-radius: 10px;
-      overflow:hidden;
-      position:relative;
-    }
-
-    /* الصورة داخل الصفحة */
-    .page img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-      /* مهم: لا نعكس الصورة أبداً */
-      transform:none !important;
-    }
-
-    /* رقم الصفحة */
-    .pageno{
-      position:absolute;
-      bottom:10px;
-      inset-inline: 12px; /* RTL/LTR friendly */
-      display:flex;
-      justify-content:space-between;
-      pointer-events:none;
-      font-size:12px;
-      color: rgba(0,0,0,.55);
-      text-shadow: 0 1px 0 rgba(255,255,255,.65);
-    }
-
-    footer{
-      width:min(1100px, 96vw);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    /* موبايل: نجعل الكتاب أقرب للمربع */
-    @media (max-width: 740px){
-      #stage{ aspect-ratio: 3 / 4; } /* عمودي */
-      header{ align-items:flex-start; flex-direction:column; }
-      .controls{ width:100%; justify-content:space-between; }
-    }
-  </style>
-</head>
-
-<body>
-  <header>
-    <div class="title">
-      <h1>كتاب قصصي — تقليب صفحات واقعي</h1>
-      <p>القراءة بالعربية (من اليمين إلى اليسار). للتقدّم إلى الصفحة التالية استخدم زر «التالي» أو مفتاح السهم الأيسر.</p>
-    </div>
-
-    <div class="controls">
-      <!-- في الكتب العربية: التقدّم غالباً يكون بالسحب لليسار.
-           لذلك زر "التالي" نضعه بسهم لليسار. -->
-      <button id="nextBtn" title="التالي (سهم أيسر)">
-        التالي <span aria-hidden="true">←</span>
-      </button>
-
-      <button id="prevBtn" title="السابق (سهم أيمن)">
-        <span aria-hidden="true">→</span> السابق
-      </button>
-
-      <div class="kbd">لوحة المفاتيح: ← التالي | → السابق</div>
-    </div>
-  </header>
-
-  <div id="stage">
-    <div id="book"></div>
-  </div>
-
-  <footer>
-    <div id="status">جاهز…</div>
-    <div>نصيحة: ضع الصور بجانب ملف HTML في نفس المجلد.</div>
-  </footer>
-
-  <script>
-    /**
-     * 1) ضع ملف هذا الكود باسم: index.html
-     * 2) ضع الصور بجانبه في نفس المجلد بأسماء:
-     *    page01.jpg ... page25.jpg
-     * 3) افتح index.html بالمتصفح.
-     */
-
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
     const TOTAL_PAGES = 25;
 
-    // توليد أسماء الملفات بالتسلسل: page01.jpg ... page25.jpg
-    const pages = Array.from({ length: TOTAL_PAGES }, (_, i) => {
-      const n = String(i + 1).padStart(2, "0");
-      return `page${n}.jpg`;
-    });
-
-    const bookEl = document.getElementById("book");
-    const statusEl = document.getElementById("status");
-    const nextBtn = document.getElementById("nextBtn");
-    const prevBtn = document.getElementById("prevBtn");
-
-    // إنشاء عناصر الصفحات داخل #book
-    function buildPages() {
-      bookEl.innerHTML = "";
-      pages.forEach((src, idx) => {
-        const page = document.createElement("div");
-        page.className = "page";
-
-        const img = document.createElement("img");
-        img.alt = `صفحة ${idx + 1}`;
-        img.loading = "eager";
-        img.src = src;
-
-        const badge = document.createElement("div");
-        badge.className = "pageno";
-        badge.innerHTML = `<span>ص ${idx + 1}</span><span>${TOTAL_PAGES}</span>`;
-
-        page.appendChild(img);
-        page.appendChild(badge);
-        bookEl.appendChild(page);
-      });
+    // 1) مصفوفة الصفحات بالترتيب الطبيعي (بدون تبديل/Swap)
+    const pages = [];
+    for (let i = 1; i <= TOTAL_PAGES; i++){
+      const n = String(i).padStart(2,'0');
+      pages.push(`pages/page${n}.jpg`);
     }
 
-    buildPages();
+    const bookEl = document.getElementById('book');
 
-    // إعدادات PageFlip
-    // ملاحظة: مكتبة PageFlip لا تملك "RTL" صريح مثل Turn.js،
-    // لكننا نحقق سلوك العربية عملياً بهذه الطريقة:
-    // - نبدأ من آخر صفحة (لتكون البداية يميناً)
-    // - نعكس أزرار التنقّل: (التالي = سهم يسار) و(السابق = سهم يمين)
     const pageFlip = new St.PageFlip(bookEl, {
-      width: 550,
-      height: 550,
+      width: 600,
+      height: 600,
       size: "stretch",
-      minWidth: 320,
+      
+      // الإعدادات الجوهرية للفتح من اليمين:
+      rtl: true,            // تفعيل خاصية اليمين إلى اليسار رسمياً
+      showCover: true,      // الصفحة الأولى ستكون غلافاً على جهة اليمين
+      
+      minWidth: 315,
       maxWidth: 1200,
-      minHeight: 420,
-      maxHeight: 800,
-
-      showCover: false,
-      mobileScrollSupport: false,
-
-      // واقعية الحركة
-      flippingTime: 850,
+      minHeight: 315,
+      maxHeight: 1200,
+      mobileScrollSupport: true,
       useMouseEvents: true,
-      swipeDistance: 20,
-      maxShadowOpacity: 0.45,
-      drawShadow: true,
-
-      // شكل الكتاب
-      startZIndex: 0,
-      autoSize: true
+      swipeDistance: 30,
+      flippingTime: 700,
+      maxShadowOpacity: 0.35
     });
 
-    // تحميل الصفحات من DOM (HTML mode)
-    pageFlip.loadFromHTML(document.querySelectorAll("#book .page"));
+    pageFlip.loadFromImages(pages);
 
-    // نبدأ من الصفحة الأخيرة حتى يكون "بداية الكتاب" يميناً (للعربية)
-    // في وضع الصفحتين (spread)، سيضع النهاية على اليسار والبداية على اليمين عملياً.
-    pageFlip.flip(TOTAL_PAGES - 1, "top"); // اذهب للآخر فوراً
-
-    // تحديث حالة الأزرار والنص
-    function updateUI() {
-      const current = pageFlip.getCurrentPageIndex(); // 0..TOTAL_PAGES-1
-      // في منطقنا العربي:
-      // - "التالي" يعني الانتقال لصفحة رقم أقل (إلى الأمام في القصة)
-      // - "السابق" يعني الانتقال لصفحة رقم أكبر
-      const canGoNext = current > 0;
-      const canGoPrev = current < TOTAL_PAGES - 1;
-
-      nextBtn.disabled = !canGoNext;
-      prevBtn.disabled = !canGoPrev;
-
-      // رقم الصفحة المعروضة (نُظهرها بأسلوب مفهوم للمستخدم)
-      statusEl.textContent = `الصفحة الحالية: ${current + 1} من ${TOTAL_PAGES}`;
-    }
-
-    // التالي (للأمام في القصة): إلى اليسار => index أقل
-    function goNext() {
-      const i = pageFlip.getCurrentPageIndex();
-      if (i > 0) pageFlip.flip(i - 1, "top");
-    }
-
-    // السابق: إلى اليمين => index أكبر
-    function goPrev() {
-      const i = pageFlip.getCurrentPageIndex();
-      if (i < TOTAL_PAGES - 1) pageFlip.flip(i + 1, "top");
-    }
-
-    nextBtn.addEventListener("click", goNext);
-    prevBtn.addEventListener("click", goPrev);
-
-    // لوحة المفاتيح:
-    // ← التالي (مثل كثير من القصص العربية: السحب لليسار = تقدّم)
-    // → السابق
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") { e.preventDefault(); goNext(); }
-      if (e.key === "ArrowRight") { e.preventDefault(); goPrev(); }
-    });
-
-    pageFlip.on("flip", updateUI);
-    pageFlip.on("changeOrientation", updateUI);
-    pageFlip.on("changeState", updateUI);
-
-    // تهيئة أولية
-    setTimeout(updateUI, 50);
-
-    // تحسين تجربة التحميل: تحقّق سريع إن كانت الصور موجودة
-    // (لن يمنع التشغيل، فقط يعطي تنبيه)
-    (async function quickCheck() {
-      const test = pages.slice(0, 3);
-      let ok = 0;
-      await Promise.all(test.map(src => new Promise(res => {
-        const im = new Image();
-        im.onload = () => { ok++; res(); };
-        im.onerror = () => res();
-        im.src = src;
-      })));
-      if (ok === 0) {
-        statusEl.textContent = "تنبيه: لم أستطع تحميل الصور. تأكد أن الصور بجانب ملف HTML وبالأسماء الصحيحة page01.jpg ...";
-      }
-    })();
-  </script>
-</body>
-</html>
+    // ربط الأزرار (في نظام RTL، التالي يذهب لليسار والسابق لليمين تلقائياً)
+    document.getElementById('next').addEventListener('click', () => pageFlip.flipNext());
+    document.getElementById('prev').addEventListener('click', () => pageFlip.flipPrev());
+  });
+</script>
