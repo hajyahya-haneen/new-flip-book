@@ -17,18 +17,43 @@
       min-height:100vh;
       gap:12px;
     }
+
     #book-wrap{
       width:min(1200px, 95vw);
-      aspect-ratio: 2 / 1; /* كتاب مفتوح: صفحتين جنب بعض */
+      aspect-ratio: 2 / 1; /* صفحتين جنب بعض */
       background:transparent;
+      overflow:hidden;
     }
+
+    /* 1) نقلب “الكتاب” كله ليصير التقليب LTR + تتبدل اليمين/اليسار */
+    #book-mirror{
+      width:100%;
+      height:100%;
+      transform: scaleX(-1);
+      transform-origin: center;
+    }
+
     #book{
       width:100%;
       height:100%;
     }
+
+    /* 2) نرجّع الصور لوضعها الطبيعي حتى لا تنعكس الكتابة */
+    #book img{
+      transform: scaleX(-1);
+      transform-origin: center;
+      width:100%;
+      height:100%;
+      object-fit: contain;
+      display:block;
+      background:#fff;
+    }
+
     .hint{
       color:#333;
       font-size:14px;
+      text-align:center;
+      padding: 0 10px;
     }
     .btns{
       display:flex;
@@ -46,7 +71,9 @@
 
 <body>
   <div id="book-wrap">
-    <div id="book"></div>
+    <div id="book-mirror">
+      <div id="book"></div>
+    </div>
   </div>
 
   <div class="btns">
@@ -55,14 +82,13 @@
   </div>
   <div class="hint">يمكنك أيضًا التقليب بالسحب/النقر على أطراف الصفحة.</div>
 
-  <!-- مكتبة تقليب صفحات (واقعية) عبر CDN -->
+  <!-- مكتبة تقليب صفحات -->
   <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 
   <script>
-    // عدلي الرقم إذا PDF عندك أكثر/أقل من 25
     const TOTAL_PAGES = 25;
 
-    // أنشئ قائمة صور الصفحات
+    // صور الصفحات (بدون ما نغيّر ترتيبها)
     const pages = [];
     for (let i = 1; i <= TOTAL_PAGES; i++){
       const n = String(i).padStart(2,'0');
@@ -71,16 +97,15 @@
 
     const bookEl = document.getElementById('book');
 
-    // إعدادات “واقعية”
     const pageFlip = new St.PageFlip(bookEl, {
-      width: 600,          // مقاس الصفحة الواحدة (داخل العرض)
+      width: 600,
       height: 600,
-      size: "stretch",     // يمدد حسب مساحة الحاوية
+      size: "stretch",
       minWidth: 315,
       maxWidth: 1200,
       minHeight: 315,
       maxHeight: 1200,
-      showCover: true,     // مهم: الغلاف لوحده
+      showCover: true,
       mobileScrollSupport: true,
       useMouseEvents: true,
       swipeDistance: 30,
@@ -89,15 +114,10 @@
       maxShadowOpacity: 0.35
     });
 
-    // تحميل الصفحات كصور
     pageFlip.loadFromImages(pages);
 
-    // أزرار التالي/السابق (اختياري لكن مفيد)
     document.getElementById('next').addEventListener('click', () => pageFlip.flipNext());
     document.getElementById('prev').addEventListener('click', () => pageFlip.flipPrev());
-
-    // اتجاه RTL: عمليًا “التجربة” هي الأهم لأن بعض المكتبات تتعامل مع الاتجاه عبر CSS.
-    // إذا حسّيتي الاتجاه معكوس، قولي لي وسأعطيك نسخة RTL معكوسة (سطر واحد).
   </script>
 </body>
 </html>
