@@ -16,13 +16,12 @@
       justify-content:center;
       min-height:100vh;
       gap:12px;
+      direction: ltr; /* 🔴 مهم جدًا */
     }
 
-    /* الكتاب نفسه LTR حتى يكون التقليب من اليسار لليمين */
     #book-wrap{
       width:min(1200px, 95vw);
       aspect-ratio: 2 / 1;
-      direction:ltr;
     }
 
     #book{
@@ -30,15 +29,9 @@
       height:100%;
     }
 
-    /* تأكيد: لا عكس للصور */
-    img{
-      transform:none !important;
-    }
-
     .btns{
       display:flex;
       gap:8px;
-      direction:rtl; /* فقط للأزرار */
     }
 
     button{
@@ -52,7 +45,6 @@
     .hint{
       font-size:14px;
       color:#333;
-      direction:rtl;
     }
   </style>
 </head>
@@ -68,11 +60,8 @@
     <button id="next">التالي</button>
   </div>
 
-  <div class="hint">
-    يمكنك التقليب بالسحب أو النقر على أطراف الصفحة
-  </div>
+  <div class="hint">يمكنك التقليب بالسحب أو الأزرار</div>
 
-  <!-- مكتبة التقليب -->
   <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 
   <script>
@@ -88,24 +77,14 @@
       width: 600,
       height: 600,
       size: "stretch",
-
-      minWidth: 315,
-      maxWidth: 1200,
-      minHeight: 315,
-      maxHeight: 1200,
-
       showCover: true,
-
-      /* 🔑 المفتاح الأساسي */
-      rtl: false,          // ← تقليب من اليسار إلى اليمين
-
       flippingTime: 700,
-      useMouseEvents: true,
-      swipeDistance: 30,
-      maxShadowOpacity: 0.35
+      maxShadowOpacity: 0.35,
+      mobileScrollSupport: true,
+      useMouseEvents: true
     });
 
-    pageFlip.loadFromImages(pages, true);
+    pageFlip.loadFromImages(pages);
 
     document.getElementById("next").onclick = () => pageFlip.flipNext();
     document.getElementById("prev").onclick = () => pageFlip.flipPrev();
@@ -113,4 +92,3 @@
 
 </body>
 </html>
-
