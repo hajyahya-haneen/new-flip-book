@@ -16,12 +16,13 @@
       justify-content:center;
       min-height:100vh;
       gap:12px;
-      direction: ltr; /* 🔴 مهم جدًا */
     }
 
+    /* الكتاب LTR حتى التقليب يبدأ من اليسار */
     #book-wrap{
       width:min(1200px, 95vw);
       aspect-ratio: 2 / 1;
+      direction:ltr;
     }
 
     #book{
@@ -29,9 +30,15 @@
       height:100%;
     }
 
+    /* تأكيد: لا عكس للصور */
+    img{
+      transform:none !important;
+    }
+
     .btns{
       display:flex;
       gap:8px;
+      direction:rtl;
     }
 
     button{
@@ -45,6 +52,8 @@
     .hint{
       font-size:14px;
       color:#333;
+      direction:rtl;
+      text-align:center;
     }
   </style>
 </head>
@@ -60,28 +69,54 @@
     <button id="next">التالي</button>
   </div>
 
-  <div class="hint">يمكنك التقليب بالسحب أو الأزرار</div>
+  <div class="hint">
+    التقليب يبدأ من جهة اليسار – الصفحات تتبادل أماكنها بدون عكس النص
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 
   <script>
     const TOTAL_PAGES = 25;
 
-    const pages = [];
+    // 1) الصفحات الأصلية بالترتيب الطبيعي
+    const rawPages = [];
     for (let i = 1; i <= TOTAL_PAGES; i++){
       const n = String(i).padStart(2,'0');
-      pages.push(`pages/page${n}.jpg`);
+      rawPages.push(`pages/page${n}.jpg`);
+    }
+
+    // 2) نبني الصفحات النهائية مع تبديل كل زوج (يسار/يمين)
+    //    الغلاف (صفحة 1) يبقى كما هو
+    const pages = [ rawPages[0] ];
+
+    for (let i = 1; i < rawPages.length; i += 2){
+      const left  = rawPages[i];
+      const right = rawPages[i + 1];
+
+      if (right) {
+        // نبدّل الأماكن: اليسار ↔ اليمين
+        pages.push(right, left);
+      } else {
+        // في حال صفحة أخيرة بدون زوج
+        pages.push(left);
+      }
     }
 
     const pageFlip = new St.PageFlip(document.getElementById("book"), {
       width: 600,
       height: 600,
       size: "stretch",
+
+      minWidth: 315,
+      maxWidth: 1200,
+      minHeight: 315,
+      maxHeight: 1200,
+
       showCover: true,
       flippingTime: 700,
-      maxShadowOpacity: 0.35,
-      mobileScrollSupport: true,
-      useMouseEvents: true
+      swipeDistance: 30,
+      useMouseEvents: true,
+      maxShadowOpacity: 0.35
     });
 
     pageFlip.loadFromImages(pages);
