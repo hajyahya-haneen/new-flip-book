@@ -93,9 +93,9 @@
       const left  = rawPages[i];
       const right = rawPages[i + 1];
 
-      if (lift) {
+      if (right) {
         // نبدّل الأماكن: اليسار ↔ اليمين
-        pages.push(right, lift);
+        pages.push(right, left);
       } else {
         // في حال صفحة أخيرة بدون زوج
         pages.push(left);
@@ -127,5 +127,3 @@
 
 </body>
 </html>
-
-
