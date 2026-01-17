@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Flipbook RTL (بدون عكس الصور)</title>
+  <title>Flipbook</title>
 
   <style>
     body{
@@ -18,22 +18,11 @@
       gap:12px;
     }
 
-    /* مساحة الكتاب (صفحتين جنب بعض على الشاشات الكبيرة) */
+    /* كتاب مفتوح: صفحتين جنب بعض */
     #book-wrap{
       width:min(1200px, 95vw);
       aspect-ratio: 2 / 1;
       background:transparent;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    /* 1) نقلب “الكتاب” كله (هذا يغيّر اتجاه التقليب بصريًا) */
-    #book-mirror{
-      width:100%;
-      height:100%;
-      transform: scaleX(-1);
-      transform-origin:center;
     }
 
     #book{
@@ -41,21 +30,16 @@
       height:100%;
     }
 
-    /* 2) نرجّع الصور لطبيعتها حتى لا تنعكس الكتابة */
-    #book-mirror img{
-      transform: scaleX(-1) !important;
-      transform-origin:center;
-    }
-
     .hint{
       color:#333;
       font-size:14px;
-      text-align:center;
     }
+
     .btns{
       display:flex;
       gap:8px;
     }
+
     button{
       padding:10px 14px;
       border:0;
@@ -63,19 +47,12 @@
       cursor:pointer;
       box-shadow:0 6px 18px rgba(0,0,0,.12);
     }
-
-    /* على الموبايل: غالبًا صفحة واحدة بدل صفحتين */
-    @media (max-width: 700px){
-      #book-wrap{ aspect-ratio: 1 / 1.3; }
-    }
   </style>
 </head>
 
 <body>
   <div id="book-wrap">
-    <div id="book-mirror">
-      <div id="book"></div>
-    </div>
+    <div id="book"></div>
   </div>
 
   <div class="btns">
@@ -84,11 +61,14 @@
   </div>
   <div class="hint">يمكنك أيضًا التقليب بالسحب/النقر على أطراف الصفحة.</div>
 
+  <!-- مكتبة تقليب صفحات -->
   <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 
   <script>
-    const TOTAL_PAGES = 25;
+    // عدد الصفحات: 26 (page26 = الغلاف الخلفي)
+    const TOTAL_PAGES = 26;
 
+    // إنشاء قائمة صور الصفحات
     const pages = [];
     for (let i = 1; i <= TOTAL_PAGES; i++){
       const n = String(i).padStart(2,'0');
@@ -97,30 +77,28 @@
 
     const bookEl = document.getElementById('book');
 
+    // إعدادات واقعية
     const pageFlip = new St.PageFlip(bookEl, {
-      width: 600,
+      width: 600,          // مقاس الصفحة الواحدة
       height: 600,
-      size: "stretch",
+      size: "stretch",     // يمدد حسب مساحة الحاوية
       minWidth: 315,
       maxWidth: 1200,
       minHeight: 315,
       maxHeight: 1200,
-      showCover: true,
+      showCover: true,     // الغلاف الأمامي لوحده + الغلاف الخلفي لوحده
       mobileScrollSupport: true,
       useMouseEvents: true,
       swipeDistance: 30,
       flippingTime: 700,
       disableFlipByClick: false,
-      maxShadowOpacity: 0.35,
-      startPage: 0
+      maxShadowOpacity: 0.35
     });
 
+    // تحميل الصفحات كصور
     pageFlip.loadFromImages(pages);
 
-    // ملاحظة مهمة:
-    // لأننا قلبنا الكتاب بصريًا بـ scaleX(-1)، فإن "التالي/السابق" قد يبدوا معكوسين حسب إحساسك.
-    // إذا حسّيتي أن الأزرار بالعكس، فقط بدّلي بين flipNext و flipPrev هنا:
-
+    // أزرار التالي/السابق
     document.getElementById('next').addEventListener('click', () => pageFlip.flipNext());
     document.getElementById('prev').addEventListener('click', () => pageFlip.flipPrev());
   </script>
