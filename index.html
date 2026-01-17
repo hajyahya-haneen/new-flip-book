@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Flipbook</title>
+  <title>Flipbook RTL</title>
 
   <style>
     body{
@@ -18,41 +18,29 @@
       gap:12px;
     }
 
+    /* الكتاب عربي حقيقي */
     #book-wrap{
       width:min(1200px, 95vw);
-      aspect-ratio: 2 / 1; /* صفحتين جنب بعض */
-      background:transparent;
-      overflow:hidden;
+      aspect-ratio: 2 / 1;
+      direction: rtl;
     }
-showCover: true,
-        rtl: true,   // 🔑 هذا هو الحل الحقيقي
 
     #book{
       width:100%;
       height:100%;
     }
 
-    /* 2) نرجّع الصور لوضعها الطبيعي حتى لا تنعكس الكتابة */
-    #book img{
-      transform: scaleX(-1);
-      transform-origin: center;
-      width:100%;
-      height:100%;
-      object-fit: contain;
-      display:block;
-      background:#fff;
+    /* لا عكس للصور */
+    img{
+      transform:none !important;
     }
 
-    .hint{
-      color:#333;
-      font-size:14px;
-      text-align:center;
-      padding: 0 10px;
-    }
     .btns{
       display:flex;
       gap:8px;
+      direction:rtl;
     }
+
     button{
       padding:10px 14px;
       border:0;
@@ -60,59 +48,67 @@ showCover: true,
       cursor:pointer;
       box-shadow:0 6px 18px rgba(0,0,0,.12);
     }
+
+    .hint{
+      font-size:14px;
+      color:#333;
+      direction:rtl;
+      text-align:center;
+    }
   </style>
 </head>
 
 <body>
+
   <div id="book-wrap">
-    <div id="book-mirror">
-      <div id="book"></div>
-    </div>
+    <div id="book"></div>
   </div>
 
   <div class="btns">
     <button id="prev">السابق</button>
     <button id="next">التالي</button>
   </div>
-  <div class="hint">يمكنك أيضًا التقليب بالسحب/النقر على أطراف الصفحة.</div>
 
-  <!-- مكتبة تقليب صفحات -->
+  <div class="hint">
+    كتاب عربي – التقليب من اليمين إلى اليسار
+  </div>
+
+  <!-- مكتبة PageFlip -->
   <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 
   <script>
     const TOTAL_PAGES = 25;
 
-    // صور الصفحات (بدون ما نغيّر ترتيبها)
+    // الصفحات بالترتيب الطبيعي
     const pages = [];
     for (let i = 1; i <= TOTAL_PAGES; i++){
       const n = String(i).padStart(2,'0');
       pages.push(`pages/page${n}.jpg`);
     }
 
-    const bookEl = document.getElementById('book');
+    const pageFlip = new St.PageFlip(
+      document.getElementById("book"),
+      {
+        width: 600,
+        height: 600,
+        size: "stretch",
 
-    const pageFlip = new St.PageFlip(bookEl, {
-      width: 600,
-      height: 600,
-      size: "stretch",
-      minWidth: 315,
-      maxWidth: 1200,
-      minHeight: 315,
-      maxHeight: 1200,
-      showCover: true,
-      mobileScrollSupport: true,
-      useMouseEvents: true,
-      swipeDistance: 30,
-      flippingTime: 700,
-      disableFlipByClick: false,
-      maxShadowOpacity: 0.35
-    });
+        showCover: true,
+        rtl: true,   // 🔑 هذا هو الحل الحقيقي
+
+        flippingTime: 700,
+        swipeDistance: 30,
+        useMouseEvents: true,
+        mobileScrollSupport: true,
+        maxShadowOpacity: 0.35
+      }
+    );
 
     pageFlip.loadFromImages(pages);
 
-    document.getElementById('next').addEventListener('click', () => pageFlip.flipNext());
-    document.getElementById('prev').addEventListener('click', () => pageFlip.flipPrev());
+    document.getElementById("next").onclick = () => pageFlip.flipNext();
+    document.getElementById("prev").onclick = () => pageFlip.flipPrev();
   </script>
+
 </body>
 </html>
-
